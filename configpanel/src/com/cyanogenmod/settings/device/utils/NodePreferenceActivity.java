@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
 import android.preference.ListPreference;
 import android.preference.SwitchPreference;
 import android.text.TextUtils;
@@ -28,7 +29,7 @@ import android.view.MenuItem;
 
 import java.io.File;
 
-import com.cyanogenmod.settings.device.utils.Constants;;
+import com.cyanogenmod.settings.device.utils.Constants;
 import com.cyanogenmod.settings.device.utils.FileUtils;
 
 public class NodePreferenceActivity extends PreferenceActivity

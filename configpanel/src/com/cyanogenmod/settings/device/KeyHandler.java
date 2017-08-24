@@ -16,6 +16,7 @@
 
 package com.cyanogenmod.settings.device;
 
+import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -62,7 +63,7 @@ public class KeyHandler implements DeviceKeyHandler {
     }
 
     public boolean handleKeyEvent(KeyEvent event) {
-        final ContentResolver resolver = getActivity().getContentResolver();
+        final ContentResolver resolver = Context.getContentResolver();
         boolean navigationBarEnabled = Settings.System.getIntForUser(resolver,
                 Settings.System.NAVIGATION_BAR_ENABLED, 0, UserHandle.USER_CURRENT) != 0;
         boolean fingerprintHomeButtonEnabled = FileUtils.isFileReadable(FP_HOME_NODE) &&
