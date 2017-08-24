@@ -24,6 +24,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.util.Log;
 
+import com.cyanogenmod.settings.device.utils.Constants;
+
 import org.cyanogenmod.internal.util.FileUtils;
 
 public class Startup extends BroadcastReceiver {
@@ -31,25 +33,27 @@ public class Startup extends BroadcastReceiver {
     private static final String TAG = Startup.class.getSimpleName();
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(final Context context, final Intent intent) {
         final String action = intent.getAction();
         if (cyanogenmod.content.Intent.ACTION_INITIALIZE_CM_HARDWARE.equals(action)) {
 
             // Disable button settings if needed
             if (!hasButtonProcs()) {
-                disableComponent(context, ButtonSettingsActivity.class.getName());
+                disableComponent(context, ButtonSettings.class.getName());
             } else {
-                enableComponent(context, ButtonSettingsActivity.class.getName());
+                enableComponent(context, ButtonSettings.class.getName());
 
                 // Restore nodes to saved preference values
                 for (String pref : Constants.sButtonPrefKeys) {
-                    String node, value;
+                    String value;
+                    String node;
                     if (Constants.sStringNodePreferenceMap.containsKey(pref)) {
+                        value = Constants.getPreferenceString(context, pref);
                         node = Constants.sStringNodePreferenceMap.get(pref);
-                        value = Utils.getPreferenceString(context, pref);
                     } else {
+                        value = Constants.isPreferenceEnabled(context, pref) ?
+                                "1" : "0";
                         node = Constants.sBooleanNodePreferenceMap.get(pref);
-                        value = Utils.isPreferenceEnabled(context, pref) ? "1" : "0";
                     }
                     if (!FileUtils.writeLine(node, value)) {
                         Log.w(TAG, "Write to node " + node +
