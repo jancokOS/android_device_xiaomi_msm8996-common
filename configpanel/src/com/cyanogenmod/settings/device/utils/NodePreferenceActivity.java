@@ -15,33 +15,38 @@
  * limitations under the License.
  */
 
-package com.cyanogenmod.settings.device;
+package com.cyanogenmod.settings.device.utils;
 
 import android.os.Bundle;
-import android.support.v14.preference.PreferenceFragment;
-import android.support.v14.preference.SwitchPreference;
-import android.support.v7.preference.ListPreference;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.Preference.OnPreferenceChangeListener;
+import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.PreferenceActivity;
+import android.preference.ListPreference;
+import android.preference.SwitchPreference;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
-import com.android.settingslib.drawer.SettingsDrawerActivity;
-
 import org.cyanogenmod.internal.util.FileUtils;
+import org.cyanogenmod.internal.util.ScreenType;
 
-public class ButtonSettingsFragment extends PreferenceFragment
+public class NodePreferenceActivity extends PreferenceActivity
         implements OnPreferenceChangeListener {
 
     @Override
-    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        addPreferencesFromResource(R.xml.button_panel);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
         updatePreferencesBasedOnDependencies();
+
+        // If running on a phone, remove padding around the listview
+        if (!ScreenType.isTablet(this)) {
+            getListView().setPadding(0, 0, 0, 0);
+        }
     }
 
     @Override
@@ -95,6 +100,17 @@ public class ButtonSettingsFragment extends PreferenceFragment
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        // Respond to the action bar's Up/Home button
+        case android.R.id.home:
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void updatePreferencesBasedOnDependencies() {
         for (String pref : Constants.sNodeDependencyMap.keySet()) {
             SwitchPreference b = (SwitchPreference) findPreference(pref);
@@ -104,7 +120,7 @@ public class ButtonSettingsFragment extends PreferenceFragment
                 String dependencyNodeValue = FileUtils.readOneLine(dependencyNode);
                 boolean shouldSetEnabled = dependencyNodeValue.equals(
                         Constants.sNodeDependencyMap.get(pref)[1]);
-                Utils.updateDependentPreference(getContext(), b, pref, shouldSetEnabled);
+                Constants.updateDependentPreference(this, b, pref, shouldSetEnabled);
             }
         }
     }
