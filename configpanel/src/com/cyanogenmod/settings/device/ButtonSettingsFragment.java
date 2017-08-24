@@ -24,7 +24,6 @@ import android.support.v14.preference.SwitchPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.Preference.OnPreferenceChangeListener;
-import android.support.v7.preference.PreferenceCategory;
 import android.support.v7.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -32,7 +31,6 @@ import android.view.MenuItem;
 import com.android.settingslib.drawer.SettingsDrawerActivity;
 
 import org.cyanogenmod.internal.util.FileUtils;
-import org.cyanogenmod.internal.util.PackageManagerUtils;
 
 public class ButtonSettingsFragment extends PreferenceFragment
         implements OnPreferenceChangeListener {
@@ -105,15 +103,8 @@ public class ButtonSettingsFragment extends PreferenceFragment
         }
 
         // Initialize other preferences whose keys are not associated with nodes
-        final PreferenceCategory fingerprintCategory =
-                (PreferenceCategory) getPreferenceScreen().findPreference(Constants.CATEGORY_FP);
-
         SwitchPreference b = (SwitchPreference) findPreference(Constants.FP_POCKETMODE_KEY);
-        if (!PackageManagerUtils.isAppInstalled(getContext(), "com.cyanogenmod.pocketmode")) {
-            fingerprintCategory.removePreference(b);
-        } else {
-            b.setOnPreferenceChangeListener(this);
-        }
+        b.setOnPreferenceChangeListener(this);
 
         // Hide fingerprint features if the device doesn't support them
         if (!FileUtils.fileExists(Constants.FP_HOME_KEY_NODE) &&
