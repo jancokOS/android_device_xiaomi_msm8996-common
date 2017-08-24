@@ -16,19 +16,20 @@
 
 package com.cyanogenmod.settings.device;
 
+import android.app.Fragment;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
 
 import com.android.internal.os.DeviceKeyHandler;
 
-import org.cyanogenmod.internal.util.FileUtils;
-
-import cyanogenmod.hardware.CMHardwareManager;
+import com.cyanogenmod.settings.device.utils.FileUtils;
 
 public class KeyHandler implements DeviceKeyHandler {
 
@@ -61,28 +62,29 @@ public class KeyHandler implements DeviceKeyHandler {
         mContext.registerReceiver(mScreenStateReceiver, screenStateFilter);
     }
 
-    public KeyEvent handleKeyEvent(KeyEvent event) {
-        CMHardwareManager hardware = CMHardwareManager.getInstance(mContext);
-        boolean virtualKeysEnabled = hardware.get(CMHardwareManager.FEATURE_KEY_DISABLE);
+    public boolean handleKeyEvent(KeyEvent event) {
+        ContentResolver resolver = mContext.getContentResolver();
+        boolean navigationBarEnabled = Settings.System.getIntForUser(resolver,
+                Settings.System.NAVIGATION_BAR_ENABLED, 0, UserHandle.USER_CURRENT) != 0;
         boolean fingerprintHomeButtonEnabled = FileUtils.isFileReadable(FP_HOME_NODE) &&
                 FileUtils.readOneLine(FP_HOME_NODE).equals("1");
 
         if (!hasSetupCompleted()) {
-            return event;
+            return false;
         }
 
         if (event.getKeyCode() == KeyEvent.KEYCODE_HOME) {
             if (event.getScanCode() == 96) {
                 if (DEBUG) Log.d(TAG, "Fingerprint home button tapped");
-                return virtualKeysEnabled ? null : event;
+                return navigationBarEnabled;
             }
             if (event.getScanCode() == 102) {
                 if (DEBUG) Log.d(TAG, "Mechanical home button pressed");
                 return sScreenTurnedOn &&
-                        (virtualKeysEnabled || fingerprintHomeButtonEnabled) ? null : event;
+                        (navigationBarEnabled || fingerprintHomeButtonEnabled);
             }
         }
-        return event;
+        return false;
     }
 
     private boolean hasSetupCompleted() {

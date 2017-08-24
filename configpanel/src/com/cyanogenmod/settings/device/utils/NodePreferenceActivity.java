@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
 import android.preference.ListPreference;
 import android.preference.SwitchPreference;
 import android.text.TextUtils;
@@ -28,8 +29,8 @@ import android.view.MenuItem;
 
 import java.io.File;
 
-import org.cyanogenmod.internal.util.FileUtils;
-import org.cyanogenmod.internal.util.ScreenType;
+import com.cyanogenmod.settings.device.utils.Constants;
+import com.cyanogenmod.settings.device.utils.FileUtils;
 
 public class NodePreferenceActivity extends PreferenceActivity
         implements OnPreferenceChangeListener {
@@ -45,10 +46,6 @@ public class NodePreferenceActivity extends PreferenceActivity
         super.onResume();
         updatePreferencesBasedOnDependencies();
 
-        // If running on a phone, remove padding around the listview
-        if (!ScreenType.isTablet(this)) {
-            getListView().setPadding(0, 0, 0, 0);
-        }
     }
 
     @Override
@@ -94,6 +91,10 @@ public class NodePreferenceActivity extends PreferenceActivity
                 l.setEnabled(false);
             }
         }
+
+        // Initialize other preferences whose keys are not associated with nodes
+        final PreferenceCategory fingerprintCategory =
+                (PreferenceCategory) getPreferenceScreen().findPreference(Constants.CATEGORY_FP);
 
         // Hide fingerprint features if the device doesn't support them
         if (!FileUtils.fileExists(Constants.FP_HOME_KEY_NODE) &&
